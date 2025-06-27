@@ -52,14 +52,16 @@ cmake --build . --config Release --target brotlienc
 echo "[+] Configuring and building Nginx..."
 cd "$NGINX_SRC_DIR"
 ./configure
---prefix=/home/nginx \
---pid-path=/var/run/nginx/nginx.pid \
---lock-path=/var/run/nginx/nginx.lock \
---http-client-body-temp-path=/home/nginx/cache/client_temp \
---http-proxy-temp-path=/home/nginx/cache/proxy_temp \
---http-fastcgi-temp-path=/home/nginx/cache/fastcgi_temp \
---http-uwsgi-temp-path=/home/nginx/cache/uwsgi_temp \
---http-scgi-temp-path=/home/nginx/cache/scgi_temp \
+--prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
+--conf-path=/etc/nginx/nginx.conf \
+--error-log-path=/var/log/nginx/error.log \
+--http-log-path=/var/log/nginx/access.log \
+--pid-path=/var/run/nginx.pid \
+--lock-path=/var/run/nginx.lock \
+--http-client-body-temp-path=/var/cache/nginx/client_temp \
+--http-proxy-temp-path=/var/cache/nginx/proxy_temp \
+--http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
+--http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
 --add-module=modules/ngx_brotli \
 --add-module=modules/headers-more-nginx-module \
 --user=nginx --group=nginx \
