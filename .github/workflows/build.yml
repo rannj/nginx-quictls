@@ -1,12 +1,12 @@
 name: build
 on:
-  schedule:
-    - cron: "0 0 * * *"
-  push:
-    branches: [main]
-    paths:
-      - "**.sh"
-      - Dockerfile
+  # schedule:
+  #   - cron: "0 0 * * *"
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "**.sh"
+  #     - Dockerfile
   workflow_dispatch:
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
         with:
           name: v8.${{ env.minor }}.${{ env.patch }}
           path: /home/runner/work/_temp/_github_home/nginx
-      - name: Update
+      - name: 更新
         if: ${{ env.change }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
