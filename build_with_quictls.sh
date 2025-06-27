@@ -2,9 +2,8 @@
 set -e
 
 # === 定义变量 ===
-NGINX_VERSION="1.29.0"
-OPENSSL_VERSION="3.5.0"
-LIBRESSL_VERSION="4.1.0"
+NGINX_VERSION="1.29.0" # 您可以根据需要更改版本
+# QUIC/HTTP3 功能由 quictls/openssl 模块提供，无需独立的 OpenSSL 或 LibreSSL
 BASE_DIR="/github/home"
 NGINX_SRC_DIR="${BASE_DIR}/nginx-${NGINX_VERSION}"
 MODULES_DIR="${NGINX_SRC_DIR}/modules"
@@ -27,17 +26,10 @@ echo "[+] Fetching source code..."
 wget -q -O "nginx-${NGINX_VERSION}.tar.gz" "https://github.com/nginx/nginx/releases/download/release-${NGINX_VERSION}/nginx-${NGINX_VERSION}.tar.gz"
 tar -xf "nginx-${NGINX_VERSION}.tar.gz"
 
-# OpenSSL
-wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
-tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
-
-# LibreSSL
-wget -q -O "libressl-${LIBRESSL_VERSION}.tar.gz" "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz"
-tar -xf "libressl-${LIBRESSL_VERSION}.tar.gz"
-
 # Nginx 模块
 mkdir -p "$MODULES_DIR"
 cd "$MODULES_DIR"
+git clone --depth 1 --recursive https://github.com/quictls/quictls.git
 git clone --depth 1 --recursive https://github.com/google/ngx_brotli.git
 git clone --depth 1 --recursive https://github.com/openresty/headers-more-nginx-module.git
 
@@ -64,7 +56,6 @@ auto/configure
 --add-module=modules/headers-more-nginx-module \
 --user=nginx --group=nginx \
 --with-pcre-jit \
---with-openssl=../openssl-${OPENSSL_VERSION} \
 --with-file-aio \
 --with-threads \
 --with-stream \
@@ -91,8 +82,7 @@ auto/configure
 --without-http_upstream_hash_module --without-http_upstream_ip_hash_module \
 --without-http_upstream_keepalive_module --without-http_upstream_least_conn_module \
 --without-http_upstream_random_module --without-http_upstream_zone_module \
---with-cc-opt="-I../libressl-${LIBRESSL_VERSION}/build/include " \
---with-ld-opt="-L../libressl-${LIBRESSL_VERSION}/build/lib"
+--with-openssl=modules/openssl # <-- 使用 quictls 模块
 
 # --add-module=modules/ngx_http_geoip2_module \
 
