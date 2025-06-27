@@ -51,7 +51,7 @@ cmake --build . --config Release --target brotlienc
 # === 4. 配置和编译 Nginx ===
 echo "[+] Configuring and building Nginx..."
 cd "$NGINX_SRC_DIR"
-configure
+./configure
 --prefix=/home/nginx \
 --pid-path=/var/run/nginx/nginx.pid \
 --lock-path=/var/run/nginx/nginx.lock \
