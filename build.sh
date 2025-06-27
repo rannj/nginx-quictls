@@ -6,7 +6,7 @@ NGINX_VERSION="1.29.0"
 OPENSSL_VERSION="3.5.0"
 LIBRESSL_VERSION="4.1.0"
 BASE_DIR="/github/home"
-NGINX_SRC_DIR="${BASE_DIR}/nginx"
+NGINX_SRC_DIR="${BASE_DIR}/nginx-src"
 MODULES_DIR="${NGINX_SRC_DIR}/modules"
 
 # === 切换到工作目录 ===
@@ -24,7 +24,7 @@ apt-get install -y --allow-change-held-packages --allow-downgrades --allow-remov
 echo "[+] Fetching source code..."
 
 # Nginx
-hg clone https://hg.nginx.org/nginx nginx
+hg clone https://hg.nginx.org/nginx nginx-src
 
 # OpenSSL
 wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"

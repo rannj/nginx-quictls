@@ -22,7 +22,7 @@ jobs:
         with:
           name: v8.${{ env.minor }}.${{ env.patch }}
           path: /home/runner/work/_temp/_github_home/nginx
-      - name: Updtae
+      - name: Update
         if: ${{ env.change }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
