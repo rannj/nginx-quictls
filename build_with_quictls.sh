@@ -17,7 +17,7 @@ echo "[+] Installing dependencies..."
 apt-get update -y
 apt-get install -y --allow-change-held-packages --allow-downgrades --allow-remove-essential \
   -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
-  cmake git libmaxminddb-dev libpcre2-dev mercurial zlib1g-dev
+  cmake git libmaxminddb-dev libpcre2-dev mercurial zlib1g-dev wget
 
 # === 2. 下载源码 ===
 echo "[+] Fetching source code..."
