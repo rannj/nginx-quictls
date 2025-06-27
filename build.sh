@@ -6,7 +6,7 @@ NGINX_VERSION="1.29.0"
 OPENSSL_VERSION="3.5.0"
 LIBRESSL_VERSION="4.1.0"
 BASE_DIR="/github/home"
-NGINX_SRC_DIR="${BASE_DIR}/nginx-${NGINX_VERSION}"
+NGINX_SRC_DIR="${BASE_DIR}/nginx"
 MODULES_DIR="${NGINX_SRC_DIR}/modules"
 
 # === 切换到工作目录 ===
@@ -24,8 +24,7 @@ apt-get install -y --allow-change-held-packages --allow-downgrades --allow-remov
 echo "[+] Fetching source code..."
 
 # Nginx
-wget -q -O "nginx-${NGINX_VERSION}.tar.gz" "https://github.com/nginx/nginx/releases/download/release-${NGINX_VERSION}/nginx-${NGINX_VERSION}.tar.gz"
-tar -xf "nginx-${NGINX_VERSION}.tar.gz"
+hg clone https://hg.nginx.org/nginx nginx
 
 # OpenSSL
 wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
@@ -51,7 +50,7 @@ cmake --build . --config Release --target brotlienc
 # === 4. 配置和编译 Nginx ===
 echo "[+] Configuring and building Nginx..."
 cd "$NGINX_SRC_DIR"
-./configure
+auto/configure \
 --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
 --conf-path=/etc/nginx/nginx.conf \
 --error-log-path=/var/log/nginx/error.log \
