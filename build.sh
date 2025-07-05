@@ -88,7 +88,7 @@ cmake --build . --config Release --target brotlienc
 # === 4. 配置和编译 Nginx ===
 echo "[+] Configuring and building Nginx..."
 cd "$NGINX_SRC_DIR"
-auto/configure \
+./configure \
 --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
 --conf-path=/etc/nginx/nginx.conf \
 --error-log-path=/var/log/nginx/error.log \
