@@ -2,11 +2,41 @@
 set -e
 
 # === 定义变量 ===
-NGINX_VERSION="1.29.0" # 您可以根据需要更改版本
-# QUIC/HTTP3 功能由 quictls/openssl 模块提供，无需独立的 OpenSSL 或 LibreSSL
+NGINX_VERSION="1.29.1"
+ZLIB_VERSION="1.3.1"
+PCRE2_VERSION="10.45"
+LIBRESSL_VERSION="4.1.0"
+OPENSSL_VERSION="3.6.0"
 BASE_DIR="/github/home"
 NGINX_SRC_DIR="${BASE_DIR}/nginx-${NGINX_VERSION}"
 MODULES_DIR="${NGINX_SRC_DIR}/modules"
+
+CC_OPTS=" \
+-I../libressl-${LIBRESSL_VERSION}/build/include \
+-march=x86-64-v3 \
+-mtune=generic \
+-O3 \
+-pipe \
+-fno-plt \
+-fexceptions \
+-Wp,-D_FORTIFY_SOURCE=3 \
+-Wformat \
+-Werror=format-security \
+-fstack-clash-protection \
+-fcf-protection \
+-g1 \
+-flto=auto \
+"
+LD_OPTS=" \
+-L../libressl-${LIBRESSL_VERSION}/build/lib \
+-Wl,-O1 \
+-Wl,--sort-common \
+-Wl,--as-needed \
+-Wl,-z,relro \
+-Wl,-z,now \
+-Wl,-z,pack-relative-relocs \
+-flto=auto \
+"
 
 # === 切换到工作目录 ===
 mkdir -p "$BASE_DIR"
@@ -17,19 +47,34 @@ echo "[+] Installing dependencies..."
 apt-get update -y
 apt-get install -y --allow-change-held-packages --allow-downgrades --allow-remove-essential \
   -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
-  cmake git libmaxminddb-dev libpcre2-dev mercurial zlib1g-dev wget
+  cmake git libmaxminddb-dev mercurial wget
 
 # === 2. 下载源码 ===
 echo "[+] Fetching source code..."
 
-# Nginx
-wget -q -O "nginx-${NGINX_VERSION}.tar.gz" "https://github.com/nginx/nginx/releases/download/release-${NGINX_VERSION}/nginx-${NGINX_VERSION}.tar.gz"
+# NGINX
+wget -q -O "nginx-${NGINX_VERSION}.tar.gz"  "https://github.com/nginx/nginx/releases/download/release-${NGINX_VERSION}/nginx-${NGINX_VERSION}.tar.gz"
 tar -xf "nginx-${NGINX_VERSION}.tar.gz"
+
+# ZLIB
+wget -q -O "zlib-${ZLIB_VERSION}.tar.gz"  "https://github.com/madler/zlib/releases/download/v${ZLIB_VERSION}/zlib-${ZLIB_VERSION}.tar.gz"
+tar -xf "zlib-${ZLIB_VERSION}.tar.gz"
+
+# PCRE2
+wget -q -O "pcre2-${PCRE2_VERSION}.tar.gz"  "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/pcre2-${PCRE2_VERSION}.tar.gz"
+tar -xf "pcre2-${PCRE2_VERSION}.tar.gz"
+
+# LIBRESSL
+wget -q -O "libressl-${LIBRESSL_VERSION}.tar.gz" "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz"
+tar -xf "libressl-${LIBRESSL_VERSION}.tar.gz"
+
+# OPENSSL
+wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
+tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
 
 # Nginx 模块
 mkdir -p "$MODULES_DIR"
 cd "$MODULES_DIR"
-git clone --depth 1 --recursive https://github.com/quictls/quictls.git
 git clone --depth 1 --recursive https://github.com/google/ngx_brotli.git
 git clone --depth 1 --recursive https://github.com/openresty/headers-more-nginx-module.git
 
@@ -43,19 +88,24 @@ cmake --build . --config Release --target brotlienc
 # === 4. 配置和编译 Nginx ===
 echo "[+] Configuring and building Nginx..."
 cd "$NGINX_SRC_DIR"
-auto/configure 
---prefix=/home/nginx \
---pid-path=/var/run/nginx/nginx.pid \
---lock-path=/var/run/nginx/nginx.lock \
---http-client-body-temp-path=/home/nginx/cache/client_temp \
---http-proxy-temp-path=/home/nginx/cache/proxy_temp \
---http-fastcgi-temp-path=/home/nginx/cache/fastcgi_temp \
---http-uwsgi-temp-path=/home/nginx/cache/uwsgi_temp \
---http-scgi-temp-path=/home/nginx/cache/scgi_temp \
+./configure \
+--prefix=/etc/nginx --sbin-path=/usr/sbin/nginx \
+--conf-path=/etc/nginx/nginx.conf \
+--error-log-path=/var/log/nginx/error.log \
+--http-log-path=/var/log/nginx/access.log \
+--pid-path=/var/run/nginx.pid \
+--lock-path=/var/run/nginx.lock \
+--http-client-body-temp-path=/var/cache/nginx/client_temp \
+--http-proxy-temp-path=/var/cache/nginx/proxy_temp \
+--http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
+--http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
 --add-module=modules/ngx_brotli \
 --add-module=modules/headers-more-nginx-module \
 --user=nginx --group=nginx \
 --with-pcre-jit \
+--with-zlib=../zlib-${ZLIB_VERSION} \
+--with-pcre=../pcre2-${PCRE2_VERSION} \
+--with-openssl=../openssl-${OPENSSL_VERSION} \
 --with-file-aio \
 --with-threads \
 --with-stream \
@@ -82,7 +132,8 @@ auto/configure
 --without-http_upstream_hash_module --without-http_upstream_ip_hash_module \
 --without-http_upstream_keepalive_module --without-http_upstream_least_conn_module \
 --without-http_upstream_random_module --without-http_upstream_zone_module \
---with-openssl=modules/openssl # <-- 使用 quictls 模块
+--with-cc-opt="$CC_OPTS" \
+--with-ld-opt="$LD_OPTS"
 
 # --add-module=modules/ngx_http_geoip2_module \
 

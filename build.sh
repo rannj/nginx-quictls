@@ -5,14 +5,12 @@ set -e
 NGINX_VERSION="1.29.1"
 ZLIB_VERSION="1.3.1"
 PCRE2_VERSION="10.45"
-LIBRESSL_VERSION="4.1.0"
 OPENSSL_VERSION="3.6.0"
 BASE_DIR="/github/home"
 NGINX_SRC_DIR="${BASE_DIR}/nginx-${NGINX_VERSION}"
 MODULES_DIR="${NGINX_SRC_DIR}/modules"
 
 CC_OPTS=" \
--I../libressl-${LIBRESSL_VERSION}/build/include \
 -march=x86-64-v3 \
 -mtune=generic \
 -O3 \
@@ -28,7 +26,6 @@ CC_OPTS=" \
 -flto=auto \
 "
 LD_OPTS=" \
--L../libressl-${LIBRESSL_VERSION}/build/lib \
 -Wl,-O1 \
 -Wl,--sort-common \
 -Wl,--as-needed \
@@ -63,10 +60,6 @@ tar -xf "zlib-${ZLIB_VERSION}.tar.gz"
 # PCRE2
 wget -q -O "pcre2-${PCRE2_VERSION}.tar.gz"  "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/pcre2-${PCRE2_VERSION}.tar.gz"
 tar -xf "pcre2-${PCRE2_VERSION}.tar.gz"
-
-# LIBRESSL
-wget -q -O "libressl-${LIBRESSL_VERSION}.tar.gz" "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz"
-tar -xf "libressl-${LIBRESSL_VERSION}.tar.gz"
 
 # OPENSSL
 wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
