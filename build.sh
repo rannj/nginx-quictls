@@ -62,8 +62,11 @@ wget -q -O "pcre2-${PCRE2_VERSION}.tar.gz"  "https://github.com/PCRE2Project/pcr
 tar -xf "pcre2-${PCRE2_VERSION}.tar.gz"
 
 # OPENSSL
-wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
-tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
+# wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
+# tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
+
+# LIBRESSL
+git clone --depth 1 --recursive  https://github.com/libressl/portable.git
 
 # Nginx 模块
 mkdir -p "$MODULES_DIR"
@@ -98,7 +101,7 @@ cd "$NGINX_SRC_DIR"
 --with-pcre-jit \
 --with-zlib=../zlib-${ZLIB_VERSION} \
 --with-pcre=../pcre2-${PCRE2_VERSION} \
---with-openssl=../openssl-${OPENSSL_VERSION} \
+--with-openssl=../libressl \
 --with-file-aio \
 --with-threads \
 --with-stream \
