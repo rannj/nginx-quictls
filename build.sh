@@ -11,6 +11,7 @@ NGINX_SRC_DIR="${BASE_DIR}/nginx-${NGINX_VERSION}"
 MODULES_DIR="${NGINX_SRC_DIR}/modules"
 
 CC_OPTS=" \
+-I../libressl/build/include \
 -march=x86-64-v3 \
 -mtune=generic \
 -O3 \
@@ -26,6 +27,7 @@ CC_OPTS=" \
 -flto=auto \
 "
 LD_OPTS=" \
+-L../libressl/build/lib \
 -Wl,-O1 \
 -Wl,--sort-common \
 -Wl,--as-needed \
@@ -62,8 +64,8 @@ wget -q -O "pcre2-${PCRE2_VERSION}.tar.gz"  "https://github.com/PCRE2Project/pcr
 tar -xf "pcre2-${PCRE2_VERSION}.tar.gz"
 
 # OPENSSL
-# wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
-# tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
+wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz"
+tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
 
 # LIBRESSL
 git clone --depth 1 --recursive  https://github.com/libressl/portable.git
@@ -101,7 +103,7 @@ cd "$NGINX_SRC_DIR"
 --with-pcre-jit \
 --with-zlib=../zlib-${ZLIB_VERSION} \
 --with-pcre=../pcre2-${PCRE2_VERSION} \
---with-openssl=../libressl \
+--with-openssl=../openssl-${OPENSSL_VERSION} \
 --with-file-aio \
 --with-threads \
 --with-stream \
