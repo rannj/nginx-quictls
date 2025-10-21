@@ -4,14 +4,13 @@ set -e
 # === 定义变量 ===
 NGINX_VERSION="1.29.2"
 ZLIB_VERSION="1.3.1"
-PCRE2_VERSION="10.46"
+PCRE2_VERSION="10.47"
 OPENSSL_VERSION="3.6.0"
 BASE_DIR="/github/home"
 NGINX_SRC_DIR="${BASE_DIR}/nginx-${NGINX_VERSION}"
 MODULES_DIR="${NGINX_SRC_DIR}/modules"
 
 CC_OPTS=" \
--I../libressl/build/include \
 -march=x86-64-v3 \
 -mtune=generic \
 -O3 \
@@ -27,7 +26,6 @@ CC_OPTS=" \
 -flto=auto \
 "
 LD_OPTS=" \
--L../libressl/build/lib \
 -Wl,-O1 \
 -Wl,--sort-common \
 -Wl,--as-needed \
@@ -68,7 +66,7 @@ wget -q -O "openssl-${OPENSSL_VERSION}.tar.gz" "https://github.com/openssl/opens
 tar -xf "openssl-${OPENSSL_VERSION}.tar.gz"
 
 # LIBRESSL
-git clone --depth 1 --recursive  https://github.com/libressl/portable.git
+# git clone --depth 1 --recursive  https://github.com/libressl/portable.git
 
 # Nginx 模块
 mkdir -p "$MODULES_DIR"
